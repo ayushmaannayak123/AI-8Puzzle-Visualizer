@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive 8-Puzzle solver using Depth Limited Search (DLS), built with HTML5, CSS3, ES6 JavaScript and Bootstrap 5.">
+  <title>8-Puzzle Solver &middot; Depth Limited Search</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235EEAD4'/%3E%3Ctext x='32' y='45' font-size='38' font-family='Arial' font-weight='700' text-anchor='middle' fill='%230F1117'%3E8%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="visually-hidden-focusable skip-link" href="#main">Skip to content</a>
+
+<!-- ================= NAVIGATION ================= -->
+<nav class="navbar navbar-expand-md sticky-top app-nav" aria-label="Main navigation">
+  <div class="container-xl">
+    <a class="navbar-brand brand" href="#home"><span class="brand-mark">8</span>DLS Solver</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu"
+            aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-md-1">
+        <li class="nav-item"><a class="nav-link" href="#home" data-route="home">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#puzzle" data-route="puzzle">Puzzle</a></li>
+        <li class="nav-item"><a class="nav-link" href="#algorithm" data-route="algorithm">Algorithm Info</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main id="main" tabindex="-1">
+
+<!-- ================= HOME ================= -->
+<section id="page-home" class="page" aria-labelledby="homeTitle">
+  <header class="hero">
+    <div class="hero-bg" id="heroBg" aria-hidden="true"></div>
+    <div class="container-xl position-relative">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <h1 id="homeTitle" class="fw-bold">Interactive 8-Puzzle Problem Solver <span class="accent">using Depth Limited Search</span></h1>
+          <p class="lead hero-lead">Watch Depth Limited Search dive down a branch, hit its depth limit,
+            backtrack and try again, one node at a time, with the final solution path
+            animated on the board.</p>
+          <div class="d-flex flex-wrap gap-2 mt-4">
+            <a class="btn btn-accent btn-lg" href="#puzzle">Open the Puzzle &rarr;</a>
+            <a class="btn btn-outline-light btn-lg" href="#algorithm">How DLS works</a>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="details-card" aria-label="Course and student details">
+            <div class="details-title">Course</div>
+            <dl class="details-grid">
+              <div class="span-2"><dt>Course Name</dt><dd id="cfgCourse">-</dd></div>
+              <div><dt>Course Code</dt><dd id="cfgCode">-</dd></div>
+              <div><dt>Slot</dt><dd id="cfgSlot">-</dd></div>
+              <div><dt>Semester</dt><dd id="cfgSemester">-</dd></div>
+              <div><dt>Faculty Name</dt><dd id="cfgFaculty">-</dd></div>
+            </dl>
+            <div class="details-title">Project</div>
+            <dl class="details-grid">
+              <div class="span-2"><dt>Assignment Title</dt><dd id="cfgTitle">-</dd></div>
+              <div><dt>Student Name</dt><dd id="cfgName">-</dd></div>
+              <div><dt>Registration Number</dt><dd id="cfgReg">-</dd></div>
+              <div class="span-2"><dt>Algorithm</dt><dd id="cfgAlgo">-</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-xl py-5">
+    <div class="row g-5">
+      <div class="col-lg-7">
+        <h2 class="section-title">What is the 8-Puzzle Problem?</h2>
+        <p>The 8-puzzle is a sliding-tile puzzle on a 3&times;3 grid. Eight tiles are numbered 1&ndash;8 and one cell is
+          empty (the <em>blank</em>). A tile next to the blank can slide into it, which is the same as moving the
+          blank <strong>up, down, left or right</strong>. The aim is to turn a given <em>initial state</em> into a given
+          <em>goal state</em> using legal slides.</p>
+        <p>Because the puzzle is a classic <strong>state-space search</strong> problem, it is perfect for studying AI search:</p>
+        <ul class="formal-list">
+          <li><strong>State</strong>: one arrangement of the nine cells (there are 9! = 362,880, but only half of them, 181,440, are reachable from any given state).</li>
+          <li><strong>Initial / goal state</strong>: the arrangement we start from and the one we want.</li>
+          <li><strong>Actions</strong>: Up, Down, Left, Right (movement of the blank, when it stays on the board).</li>
+          <li><strong>Transition &amp; cost</strong>: each action produces a new state at a step cost of 1, so path cost = number of moves.</li>
+          <li><strong>Goal test</strong>: does the current arrangement equal the goal arrangement?</li>
+        </ul>
+        <p>Not every pair of arrangements is connected. Exactly half of all permutations can reach a given goal; the
+          solver checks the <strong>inversion parity</strong> of your puzzle first and tells you straight away if a
+          puzzle is impossible.</p>
+      </div>
+      <div class="col-lg-5">
+        <h2 class="section-title">About Depth Limited Search</h2>
+        <p>DLS is <strong>Depth-First Search with a ceiling</strong>. It follows one branch as deep as it is allowed
+          (the <em>depth limit l</em>), treats nodes at depth <em>l</em> as dead ends, then backtracks and tries the next
+          branch. The limit fixes DFS's classic weakness (wandering down an endless path) but introduces a new
+          one: if the goal lies deeper than <em>l</em>, DLS reports a <strong>cutoff</strong> instead of a solution.</p>
+        <div class="callout">Try it: load the example puzzle (solution depth 5) and run DLS with limit&nbsp;4, then limit&nbsp;5.</div>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-4">
+      <div class="col-md-4"><div class="fcard"><span class="fnum">01</span><h3>Two ways to set up</h3><p>Type an initial and goal state, or generate a random solvable puzzle.</p></div></div>
+      <div class="col-md-4"><div class="fcard"><span class="fnum">02</span><h3>Live search internals</h3><p>Depth, generated and expanded counts, the frontier stack, the explored list and the generated successors, updated every step.</p></div></div>
+      <div class="col-md-4"><div class="fcard"><span class="fnum">03</span><h3>Animated solution</h3><p>The blank slides across the board along the final path, with run, pause, step and speed controls and a clear found / not found indicator.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PUZZLE ================= -->
+<section id="page-puzzle" class="page" aria-labelledby="puzzleTitle" hidden>
+  <div class="container-xl py-4">
+    <h1 id="puzzleTitle" class="page-title">Puzzle</h1>
+
+    <div class="row g-4">
+
+      <!-- ========== 1. INPUT ========== -->
+      <div class="col-12">
+        <div class="panel mb-0">
+          <h2 class="panel-title"><span class="step-no">1</span>Puzzle Input</h2>
+
+          <ul class="nav nav-pills mb-3 input-tabs" id="inputTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tabManualBtn" data-bs-toggle="pill" data-bs-target="#tabManual" type="button" role="tab" aria-controls="tabManual" aria-selected="true">Enter states</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tabRandomBtn" data-bs-toggle="pill" data-bs-target="#tabRandom" type="button" role="tab" aria-controls="tabRandom" aria-selected="false">Random puzzle</button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tabManual" role="tabpanel" aria-labelledby="tabManualBtn">
+              <p class="hint">Type three rows of three characters. Use <code>_</code> for the blank (<code>0</code> also works).</p>
+              <div class="input-grid">
+                <div class="state-input" data-state-input="initial">
+                  <label class="form-label" id="lblInitial">Initial State</label>
+                  <div class="state-input-row" role="group" aria-labelledby="lblInitial">
+                    <div class="rows">
+                      <input class="form-control row-input" maxlength="3" autocomplete="off" spellcheck="false" aria-label="Initial state, row 1" placeholder="283" value="283">
+                      <input class="form-control row-input" maxlength="3" autocomplete="off" spellcheck="false" aria-label="Initial state, row 2" placeholder="164" value="164">
+                      <input class="form-control row-input" maxlength="3" autocomplete="off" spellcheck="false" aria-label="Initial state, row 3" placeholder="7_5" value="7_5">
+                    </div>
+                    <div class="mini-board" id="previewInitial" aria-hidden="true"></div>
+                  </div>
+                </div>
+
+                <div class="state-input" data-state-input="goal">
+                  <label class="form-label" id="lblGoal">Goal State</label>
+                  <div class="state-input-row" role="group" aria-labelledby="lblGoal">
+                    <div class="rows">
+                      <input class="form-control row-input" maxlength="3" autocomplete="off" spellcheck="false" aria-label="Goal state, row 1" placeholder="123" value="123">
+                      <input class="form-control row-input" maxlength="3" autocomplete="off" spellcheck="false" aria-label="Goal state, row 2" placeholder="8_4" value="8_4">
+                      <input class="form-control row-input" maxlength="3" autocomplete="off" spellcheck="false" aria-label="Goal state, row 3" placeholder="765" value="765">
+                    </div>
+                    <div class="mini-board" id="previewGoal" aria-hidden="true"></div>
+                  </div>
+                </div>
+
+                <div class="input-actions">
+                  <button class="btn btn-accent" id="applyBtn" type="button">Apply States</button>
+                  <button class="btn btn-outline-light" id="exampleBtn" type="button" title="Load the example from the guidelines">Load Example</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabRandom" role="tabpanel" aria-labelledby="tabRandomBtn">
+              <p class="hint">Builds a puzzle by scrambling the <em>current goal state</em> with legal moves, so it is <strong>guaranteed solvable</strong>.</p>
+              <div class="input-grid">
+                <div class="input-actions">
+                  <button class="btn btn-accent" id="randomBtn" type="button">Generate Random Puzzle</button>
+                </div>
+              </div>
+              <p class="hint mt-2 mb-0" id="randomNote"></p>
+            </div>
+          </div>
+
+          <div id="inputMessage" class="alert-slot" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- Left column: visualization, then summary.  Right column: controls, then search process.
+           (On small screens the order becomes visualization, controls, summary, process.) -->
+      <div class="col-12"><div class="puzzle-main">
+
+        <div class="pm-col">
+          <!-- ========== 2. VISUALIZATION ========== -->
+          <div class="panel pm-viz">
+            <h2 class="panel-title"><span class="step-no">2</span>Puzzle Visualization</h2>
+
+            <div id="resultBanner" class="result-banner" role="status" aria-live="polite" hidden></div>
+
+            <div class="boards-row">
+              <figure class="board-block">
+                <figcaption>Initial State</figcaption>
+                <div class="mini-board lg" id="boardInitial" role="img" aria-label="Initial state"></div>
+              </figure>
+              <figure class="board-block main">
+                <figcaption>Current State <span id="viewBadge" class="badge-soft">Ready</span></figcaption>
+                <div class="board" id="boardCurrent" role="img" aria-label="Current state"></div>
+              </figure>
+              <figure class="board-block">
+                <figcaption>Goal State</figcaption>
+                <div class="mini-board lg" id="boardGoal" role="img" aria-label="Goal state"></div>
+              </figure>
+            </div>
+
+            <div class="step-banner" aria-live="polite">
+              <div class="step-title" id="stepTitle">Step 0 / 0</div>
+              <div class="step-desc" id="stepDesc">Choose a puzzle and a depth limit, then press <strong>Run</strong>.</div>
+            </div>
+
+            <div class="depth-gauge" aria-hidden="true">
+              <div class="depth-gauge-label"><span>Search depth</span><span id="gaugeText">0 / 5</span></div>
+              <div class="depth-gauge-track"><div class="depth-gauge-fill" id="gaugeFill"></div><div class="depth-gauge-limit"></div></div>
+            </div>
+
+            <input type="range" class="form-range scrub" id="scrub" min="0" max="0" value="0" step="1" disabled aria-label="Scrub through search steps">
+          </div>
+
+          <!-- ========== 4. SOLUTION SUMMARY ========== -->
+          <div class="panel pm-summary">
+            <h2 class="panel-title"><span class="step-no">4</span>Solution Summary</h2>
+            <div id="summary"><p class="muted mb-0">Run a search to see the solution summary.</p></div>
+
+            <div id="solutionPathWrap" hidden>
+              <h3 class="sub-title">Final solution path</h3>
+              <div class="solution-strip" id="solutionStrip"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pm-col">
+          <!-- ========== 3. CONTROLS ========== -->
+          <div class="panel pm-controls">
+            <h2 class="panel-title"><span class="step-no">3</span>Controls</h2>
+
+            <label class="form-label" for="limitInput">Depth limit <span class="limit-badge" id="limitBadge">l = 5</span></label>
+            <div class="d-flex align-items-center gap-3">
+              <input type="range" class="form-range" id="limitRange" min="0" max="40" step="1" value="5" aria-label="Depth limit slider">
+              <input type="number" class="form-control limit-number" id="limitInput" min="0" max="200" value="5">
+            </div>
+            <div class="form-text">Nodes at depth l are not expanded. The example needs at least 5.</div>
+
+            <button class="btn btn-accent btn-lg w-100 mt-3" id="runBtn" type="button">&#9654;&nbsp; Run</button>
+
+            <div class="ctrl-grid mt-3">
+              <button class="btn btn-outline-light" id="pauseBtn" type="button" disabled>&#10074;&#10074; Pause</button>
+              <button class="btn btn-outline-light" id="resumeBtn" type="button" disabled>&#9654; Resume</button>
+              <button class="btn btn-outline-danger" id="resetBtn" type="button">&#8635; Reset</button>
+              <button class="btn btn-outline-light" id="prevBtn" type="button" disabled>&#9664; Prev</button>
+              <button class="btn btn-outline-light" id="nextBtn" type="button" disabled>Next &#9654;</button>
+              <button class="btn btn-outline-light" id="endBtn" type="button" disabled title="Jump to the last step">End &#9197;</button>
+            </div>
+
+            <label class="form-label mt-3 d-flex justify-content-between" for="speedRange">Speed <span class="speed-readout" id="speedReadout">Medium</span></label>
+            <input type="range" class="form-range" id="speedRange" min="1" max="10" step="1" value="6">
+
+            <div class="view-toggle mt-2" role="group" aria-label="Playback view">
+              <input type="radio" class="btn-check" name="viewMode" id="viewTrace" value="trace" checked>
+              <label class="btn btn-outline-light btn-sm" for="viewTrace">Search</label>
+              <input type="radio" class="btn-check" name="viewMode" id="viewSolution" value="solution" disabled>
+              <label class="btn btn-outline-light btn-sm" for="viewSolution">Solution</label>
+            </div>
+            <p class="hint mt-3 mb-0 kbd-hint"><kbd>Space</kbd> pause / resume &nbsp; <kbd>&larr;</kbd><kbd>&rarr;</kbd> step</p>
+          </div>
+
+          <!-- ========== 5. SEARCH PROCESS ========== -->
+          <div class="panel pm-process">
+            <h2 class="panel-title"><span class="step-no">5</span>Search Process <span class="live-dot" id="liveDot" title="Playing"></span></h2>
+
+            <div class="row g-2">
+              <div class="col-6"><div class="stat"><span class="stat-label">Nodes generated</span><span class="stat-value" id="stGen">0</span></div></div>
+              <div class="col-6"><div class="stat"><span class="stat-label">Nodes expanded</span><span class="stat-value" id="stExp">0</span></div></div>
+              <div class="col-6"><div class="stat"><span class="stat-label">Current depth</span><span class="stat-value" id="stDepth">0</span></div></div>
+              <div class="col-6"><div class="stat"><span class="stat-label">Path cost g(n)</span><span class="stat-value" id="stCost">-</span></div></div>
+              <div class="col-6"><div class="stat"><span class="stat-label">Cut off at limit</span><span class="stat-value" id="stCut">0</span></div></div>
+              <div class="col-6"><div class="stat"><span class="stat-label">Duplicates pruned</span><span class="stat-value" id="stPruned">0</span></div></div>
+              <div class="col-6"><div class="stat"><span class="stat-label">Frontier size</span><span class="stat-value" id="stFront">0</span></div></div>
+              <div class="col-6"><div class="stat"><span class="stat-label">Explored size</span><span class="stat-value" id="stExplored">0</span></div></div>
+            </div>
+            <p class="hint mt-2 mb-0">DLS is uninformed, so there is no h(n) or f(n): the path cost is just the depth.</p>
+
+            <h3 class="sub-title">Generated successor states</h3>
+            <div class="successors" id="successors"><span class="muted">Run a search to see the successors generated at each step.</span></div>
+          </div>
+        </div>
+
+      </div></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= ALGORITHM INFORMATION ================= -->
+<section id="page-algorithm" class="page" aria-labelledby="algoTitle" hidden>
+  <div class="container-xl py-4">
+    <h1 id="algoTitle" class="page-title">Algorithm Information</h1>
+    <p class="page-sub">Depth Limited Search (DLS).</p>
+    <div id="algoInfo"></div>
+  </div>
+</section>
+
+</main>
+
+<script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/puzzle.js"></script>
+<script src="js/dls.js"></script>
+<script src="js/algoInfoData.js"></script>
+<script src="js/visualization.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
