@@ -7,7 +7,7 @@
 An interactive web application that solves the classic 8-Puzzle with **Depth Limited Search**, implemented from scratch in JavaScript, and shows the search happening live: the nodes generated and expanded, the successors it generates, the frontier and explored sizes, the depth limit being hit, backtracking, and finally the animated solution path.
 
 | | |
-
+|---|---|
 | **Live site (GitHub Pages)** | (https://ayushmaannayak123.github.io/8-Puzzle-Solver/) |
 | **Repository** | https://github.com/ayushmaannayak123/8-Puzzle-Solver |
 
