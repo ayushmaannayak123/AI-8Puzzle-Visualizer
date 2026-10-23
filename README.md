@@ -8,9 +8,8 @@ An interactive web application that solves the classic 8-Puzzle with **Depth Lim
 
 | | |
 |---|---|
-| **Live site (GitHub Pages)** | https://ayushmaannayak123.github.io/AI-8Puzzle-Visualizer/ |
-| **Repository** | https://github.com/ayushmaannayak123/AI-8Puzzle-Visualizer |
-| **Full report** | [`docs/8-Puzzle-DLS-Case-Study-Report.docx`](docs/8-Puzzle-DLS-Case-Study-Report.docx) |
+| **Live site (GitHub Pages)** | (https://github.com/ayushmaannayak123/8-Puzzle-Solver) |
+| **Repository** | https://github.com/ayushmaannayak123/8-Puzzle-Solver |
 
 ![Puzzle page](images/screenshot-solver-trace.png)
 
