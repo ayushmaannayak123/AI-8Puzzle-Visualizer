@@ -1,4 +1,4 @@
-# AI-8Puzzle-Visualizer
+# 8-Puzzle-Solver
 
 **Interactive 8-Puzzle Problem Solver using Depth Limited Search (DLS)**
 
